@@ -76,8 +76,7 @@ def wordnet_definitions(sentence):
             token['wn_lemma'] = wnl.lemmatize(word.lower())
             token['wn_pos'] = wordnet_pos_label(token['pos'])
             defs = [sense.definition for sense in wordnet.synsets(word, wn_pos)]
-            
-            token['wn_def'] = "; \n".join (.str(v) for v in defs) 
+            token['wn_def'] = "; \n".join(str(v) for v in defs) 
         else:
             pass
     return sentence
@@ -120,8 +119,8 @@ def tag_lines(tweet):
 #review = "I bought this tablecloth in the taupe color for Thanksgiving dinner entertaining and was a little hesitant of what I would get for such a reasonable price. It washed well and didn't even need pressing after coming out of the dryer. The color worked out great with my gold-trimmed Lenox placesettings and the tablecloth was of a nice weight - not too flimsy yet not too heavy either. I'm pleased with this purchase and may order another in a smaller size for use now that the leaf is out of the table!"
 
 
-inputpath  = 'C:\ABCDEFG\input\inputsample.txt'
-outputpath  = 'C:\ABCDEFG\output\outputsample1.txt'
+inputpath  = 'D:\SourceCode\inputsample1.txt'
+outputpath  = 'D:\SourceCode\outputsample1.txt'
 
 input_file = open(inputpath, 'r')
 output_file = open(outputpath, 'w')

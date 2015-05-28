@@ -137,8 +137,8 @@ review = "I took the day off yesterday for the installation, whole family was ar
 
 
 
-inputpath  = 'C:\ABCDEFG\input\inputsample.txt'
-outputpath  = 'C:\ABCDEFG\output\outputsample1.txt'
+inputpath  = 'D:\SourceCode\inputsample.txt'
+outputpath  = 'D:\SourceCode\outputsample1.txt'
 
 input_file = open(inputpath, 'r')
 output_file = open(outputpath, "w")
@@ -164,24 +164,24 @@ Conversion from plain text to SentiWordnet scores
 
 
 for line in lines:
-    for word in a:
-        if 'punct' not in word :
-            #sense = word_sense_disambiguate(word['word'], wordnet_pos_code(word['pos']), review)
-            #lesk(sent, word, pos))
-            sense = lesk (review,word['word'], wordnet_pos_code(word['pos']))
-            print "1",sense
-            if sense is None:
-                sense = lesk (review,word['word'])
-                print "2",sense
-            if sense is not None:
-                #sent = sentiment.senti_synset(sense.name)
-                sent = swn.senti_synset(sense.name())
-                print "3" , sent
-                if sent is not None and sent.obj_score() <> 1:
-                    obj_score = obj_score + float(sent.obj_score())
-                    pos_score = pos_score + float(sent.pos_score())
-                    neg_score = neg_score + float(sent.neg_score())
-                    
+for word in a:
+    if 'punct' not in word :
+        #sense = word_sense_disambiguate(word['word'], wordnet_pos_code(word['pos']), review)
+        #lesk(sent, word, pos))
+        sense = lesk (review,word['word'], wordnet_pos_code(word['pos']))
+        print "1",sense
+        if sense is None:
+            sense = lesk (review,word['word'])
+            print "2",sense
+        if sense is not None:
+            #sent = sentiment.senti_synset(sense.name)
+            sent = swn.senti_synset(sense.name())
+            print "3" , sent
+            if sent is not None and sent.obj_score() <> 1:
+                obj_score = obj_score + float(sent.obj_score())
+                pos_score = pos_score + float(sent.pos_score())
+                neg_score = neg_score + float(sent.neg_score())
+                
 print pos_score,neg_score,obj_score
 
 """

@@ -1,4 +1,5 @@
 import sys
+import csv
 import nltk
 from nltk.corpus import wordnet
 import re
@@ -125,21 +126,29 @@ def word_sense_disambiguate(word, wn_pos, tweet):
 #swn_filename = 'D:/SentiWordNet_3.0.0.txt'
 #swn = SentiWordNetCorpusReader(swn_filename)
 
-sentiment = SentiWordNetCorpusReader("D:/SentiWordNet_3.0.0.txt")
+#sentiment = SentiWordNetCorpusReader("D:/SentiWordNet_3.0.0.txt")
 
-review = "I bought this tablecloth in the taupe color for Thanksgiving dinner entertaining and was a little hesitant of what I would get for such a reasonable price. It washed well and didn't even need pressing after coming out of the dryer. The color worked out great with my gold-trimmed Lenox placesettings and the tablecloth was of a nice weight - not too flimsy yet not too heavy either. I'm pleased with this purchase and may order another in a smaller size for use now that the leaf is out of the table!"
-
-
-#review = "Very good movie"
+#review = "I bought this tablecloth in the taupe color for Thanksgiving dinner entertaining and was a little hesitant of what I would get for such a reasonable price. It washed well and didn't even need pressing after coming out of the dryer. The color worked out great with my gold-trimmed Lenox placesettings and the tablecloth was of a nice weight - not too flimsy yet not too heavy either. I'm pleased with this purchase and may order another in a smaller size for use now that the leaf is out of the table!"
 
 
+review = "I took the day off yesterday for the installation, whole family was around and the technician did not show up. How do I cancel the service now?"
 
-a = wordnet_definitions(tag_tweet(review))
+#review = "Blazing fast internet speeds... I'm blown away"
+
+
+
+inputpath  = 'D:\SourceCode\inputsample.txt'
+outputpath  = 'D:\SourceCode\outputsample1.txt'
+
+input_file = open(inputpath, 'r')
+output_file = open(outputpath, "w")
+
+lines = input_file.readlines()
+
+
+#a = wordnet_definitions(tag_tweet(lines))
 #print a
 
-obj_score = 0 # object score 
-pos_score=0 # positive score
-neg_score=0 #negative score
 pos_score_tre=0
 neg_score_tre=0
 threshold = 0.75
@@ -149,26 +158,36 @@ count_tre = 0
 """
 Conversion from plain text to SentiWordnet scores
 """
- 
-for word in a:
-    if 'punct' not in word :
-        #sense = word_sense_disambiguate(word['word'], wordnet_pos_code(word['pos']), review)
-        #lesk(sent, word, pos))
-        sense = lesk (review,word['word'], wordnet_pos_code(word['pos']))
-        if sense is not None:
-            print "---------------------------------------------"
-            print word
-            print sense
-            print sense.name
-            print "---------------------------------------------"
-            #sent = sentiment.senti_synset(sense.name)
-            sent = swn.senti_synset(sense.name())
-            print sent
-            print "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+
+
+for line in lines:
+    obj_score = 0 # object score 
+    pos_score=0 # positive score
+    neg_score=0 #negative score
+    for word in wordnet_definitions(tag_tweet(line)):
+        if 'punct' not in word :
             
+            #sense = word_sense_disambiguate(word['word'], wordnet_pos_code(word['pos']), review)
+            #lesk(sent, word, pos))
+            sense = lesk (review,word['word'], wordnet_pos_code(word['pos']))
+            #print "1",sense
+            if sense is None:
+                sense = lesk (review,word['word'])
+                #print "2",sense
+            if sense is not None:
+                #sent = sentiment.senti_synset(sense.name)
+                sent = swn.senti_synset(sense.name())
+                #print "3" , sent
+                if sent is not None and sent.obj_score() <> 1:
+                    obj_score = obj_score + float(sent.obj_score())
+                    pos_score = pos_score + float(sent.pos_score())
+                    neg_score = neg_score + float(sent.neg_score())
+                
+    print pos_score,neg_score,obj_score ,  pos_score-neg_score
+
+"""
             # Extraction of the scores
             if sent is not None and sent.obj_score() <> 1:
-                print sent.obj_score()
                 obj_score = obj_score + float(sent.obj_score())
                 pos_score = pos_score + float(sent.pos_score())
                 neg_score = neg_score + float(sent.neg_score())
@@ -202,11 +221,12 @@ if count_tre <> 0:
 
 #pint results
 #1
-#print "pos_total : "+str(pos_score)+" - neg_ total: "+str(neg_score)+" - count : "+str(count)+" -> "+(" positivo " if pos_score > neg_score else ("negativo" if pos_score < neg_score else "neutro"))
+print "pos_total : "+str(pos_score)+" - neg_ total: "+str(neg_score)+" - count : "+str(count)+" -> "+(" positivo " if pos_score > neg_score else ("negativo" if pos_score < neg_score else "neutro"))
 #2
-#print "(AVG) pos : "+str(avg_pos_score)+" - (AVG) neg : "+str(avg_neg_score)+" -> "+(" positivo " if avg_pos_score > avg_neg_score else ("negativo" if avg_pos_score < avg_neg_score else "neutro"))
+print "(AVG) pos : "+str(avg_pos_score)+" - (AVG) neg : "+str(avg_neg_score)+" -> "+(" positivo " if avg_pos_score > avg_neg_score else ("negativo" if avg_pos_score < avg_neg_score else "neutro"))
 #3
-'''if count_tre > 0:
+if count_tre > 0:
     print "(AVG_TRE) pos : "+str(avg_pos_score_tre)+" - (AVG_TRE) neg : "+str(avg_neg_score_tre)+" -> "+(" positivo " if avg_pos_score_tre > avg_neg_score_tre else ("negativo" if avg_pos_score_tre < avg_neg_score_tre else "neutro"))
 print ""
-'''
+
+"""
