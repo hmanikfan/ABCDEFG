@@ -126,13 +126,14 @@ def word_sense_disambiguate(word, wn_pos, tweet):
 #swn_filename = 'D:/SentiWordNet_3.0.0.txt'
 #swn = SentiWordNetCorpusReader(swn_filename)
 
-sentiment = SentiWordNetCorpusReader("D:/SentiWordNet_3.0.0.txt")
+#sentiment = SentiWordNetCorpusReader("D:/SentiWordNet_3.0.0.txt")
 
-review = "I bought this tablecloth in the taupe color for Thanksgiving dinner entertaining and was a little hesitant of what I would get for such a reasonable price. It washed well and didn't even need pressing after coming out of the dryer. The color worked out great with my gold-trimmed Lenox placesettings and the tablecloth was of a nice weight - not too flimsy yet not too heavy either. I'm pleased with this purchase and may order another in a smaller size for use now that the leaf is out of the table!"
+#review = "I bought this tablecloth in the taupe color for Thanksgiving dinner entertaining and was a little hesitant of what I would get for such a reasonable price. It washed well and didn't even need pressing after coming out of the dryer. The color worked out great with my gold-trimmed Lenox placesettings and the tablecloth was of a nice weight - not too flimsy yet not too heavy either. I'm pleased with this purchase and may order another in a smaller size for use now that the leaf is out of the table!"
 
 
-#review = "Very good movie"
+review = "Very good movie"
 
+#review = "Blazing fast internet speeds... I'm blown away"
 
 
 a = wordnet_definitions(tag_tweet(review))
@@ -156,20 +157,15 @@ for word in a:
         #sense = word_sense_disambiguate(word['word'], wordnet_pos_code(word['pos']), review)
         #lesk(sent, word, pos))
         sense = lesk (review,word['word'], wordnet_pos_code(word['pos']))
+        if sense is None:
+            sense = lesk (review,word['word'])
+        print "--->", sense
         if sense is not None:
-            print "---------------------------------------------"
-            print word
-            print sense
-            print sense.name
-            print "---------------------------------------------"
             #sent = sentiment.senti_synset(sense.name)
             sent = swn.senti_synset(sense.name())
-            print sent
-            print "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
             
             # Extraction of the scores
             if sent is not None and sent.obj_score() <> 1:
-                print sent.obj_score()
                 obj_score = obj_score + float(sent.obj_score())
                 pos_score = pos_score + float(sent.pos_score())
                 neg_score = neg_score + float(sent.neg_score())
