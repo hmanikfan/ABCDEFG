@@ -1,0 +1,8 @@
+Positive
+Negative
+Negative
+Neutral
+Neutral
+Positive
+Negative
+Neutral
