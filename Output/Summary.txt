@@ -1,5 +1,0 @@
-20050501_output.txt	4	3	3
-20050502_output.txt	7	6	5
-20050503_output.txt	2	3	3
-20050504_output.txt	14	9	9
-20050505_output.txt	4	4	4

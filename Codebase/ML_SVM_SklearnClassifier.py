@@ -5,6 +5,11 @@ from nltk.classify import NaiveBayesClassifier
 from nltk.metrics import BigramAssocMeasures
 from nltk.probability import FreqDist, ConditionalFreqDist
 import pandas as pd
+from nltk.classify import SklearnClassifier
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.svm import SVC
+from nltk.collocations import BigramCollocationFinder
+
 
 POLARITY_DATA_DIR = os.path.join('c:/abcdefg/polarity/')
 RT_POLARITY_POS_FILE = os.path.join(POLARITY_DATA_DIR, 'rt-polarity-pos.txt')
@@ -51,7 +56,8 @@ def evaluate_features(feature_select):
     testFeatures = innegFeatures #+ inposFeatures
       
     	#trains a Naive Bayes Classifier
-    classifier = NaiveBayesClassifier.train(trainFeatures)	
+    #classifier = SklearnClassifier(BernoulliNB()).train(trainFeatures)	
+    classifier = SklearnClassifier(SVC(probability=True), sparse=False).train(trainFeatures)	
     
     	#initiates referenceSets and testSets
     referenceSets = collections.defaultdict(set)
@@ -62,15 +68,17 @@ def evaluate_features(feature_select):
     for i, (features, label) in enumerate(testFeatures):
         #print features , label
         referenceSets[label].add(i)
-        predicted = classifier.prob_classify(features)
-        print "\n"
-        fileOutput['key'].append(i)
-        fileOutput['pos'].append(predicted.prob("pos"))
-        fileOutput['neg'].append(predicted.prob("neg"))
+        predicted = classifier.prob_classify_many(features)
+        print "\n" 
+        #print predicted
+        for item in predicted:
+            fileOutput['key'].append(i)
+            fileOutput['pos'].append(item.prob("pos"))
+            fileOutput['neg'].append(item.prob("neg"))
         #posValues =  predicted.prob("pos") 
         #negValues = predicted.prob("neg") 
         fileOutput.values()
-        testSets[predicted].add(i)
+        #testSets[predicted].add(i)
         #print i
         #print testSets[predicted]
     return fileOutput
@@ -146,10 +154,23 @@ def find_best_words(word_scores, number):
 def best_word_features(words):
 	return dict([(word, True) for word in words if word in best_words])
 
+#classifier = Pipeline([('vectorizer', CountVectorizer()),('tfidf', TfidfTransformer()),('clf', OneVsRestClassifier(SVC(kernel='rbf')))])
+
+def best_bigram_word_feats(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
+	print "bigrams in da house"
+
+	bigram_finder = BigramCollocationFinder.from_words(words)
+	bigrams = bigram_finder.nbest(score_fn, n)
+	d = dict([(bigram, True) for bigram in bigrams])
+	d.update(best_word_features(words))
+	return d
+ 
 dp = '{:%Y%m%d%H%M%S}'.format(datetime.datetime.now())
 #outputpath  = 'D:\SourceCode\outputsamplebay1.txt'
 #outputpath  = 'D:\\SourceCode\\Output_NBC_'+ dp + '.txt'
-outputpath  = 'C:\\ABCDEFG\\output\\ABCDEFG_MLNB_'+ dp + '.txt'
+outputpath  = 'C:\\ABCDEFG\\output\\ABCDEFG_MLSVM_'+ dp + '.txt'
+#outputpath  = 'D:\SourceCode\outputsamplesvm1.txt'
+
 
 output_file = open(outputpath, 'w')
 
@@ -166,16 +187,15 @@ for num in numbers_to_test:
     df['diff'] = df['pos'] - df['neg']
     diff = df['diff'].tolist()
     for score in diff:
-        if score > -0.1:
+        if score > 0:
             op = 'Positive'  + '\n'
-        elif score < 0.15:
+        elif score < 0:
             op = 'Negative' + '\n'
         else:
             op = 'Neutral' + '\n'
-        #print op
-        
-        output_file.write(op)
+            
+        output_file.writelines(op)
 
     #print pd.DataFrame(output.items(), columns=['key','pos', 'neg'])
-    #df.to_csv('out.csv')
+
 

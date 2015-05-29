@@ -120,7 +120,7 @@ def tag_lines(tweet):
 #review = "I bought this tablecloth in the taupe color for Thanksgiving dinner entertaining and was a little hesitant of what I would get for such a reasonable price. It washed well and didn't even need pressing after coming out of the dryer. The color worked out great with my gold-trimmed Lenox placesettings and the tablecloth was of a nice weight - not too flimsy yet not too heavy either. I'm pleased with this purchase and may order another in a smaller size for use now that the leaf is out of the table!"
 
 
-inputpath  = 'C:\\ABCDEFG\\input\\inputsample.txt'
+inputpath  = 'C:\\ABCDEFG\\input\\HackathonInput.txt'
 dp = '{:%Y%m%d%H%M%S}'.format(datetime.datetime.now())
 #outputpath  = 'c:\Codebase\outputsample1.txt'
 outputpath  = 'C:\\ABCDEFG\\output\\ABCDEFG_'+ dp + '.txt'
