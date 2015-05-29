@@ -1,9 +1,9 @@
-Positive
 Negative
 Negative
-Neutral
-Neutral
 Positive
+Positive
+Neutral
+Neutral
 Positive
 Positive
 Negative

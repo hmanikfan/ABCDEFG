@@ -1,16 +1,18 @@
 import re, math, collections, itertools, os
+import datetime
 import nltk, nltk.classify.util, nltk.metrics
 from nltk.classify import NaiveBayesClassifier
 from nltk.metrics import BigramAssocMeasures
 from nltk.probability import FreqDist, ConditionalFreqDist
+import pandas as pd
 
-
-POLARITY_DATA_DIR = os.path.join('D:/polarity/')
+POLARITY_DATA_DIR = os.path.join('c:/abcdefg/polarity/')
 RT_POLARITY_POS_FILE = os.path.join(POLARITY_DATA_DIR, 'rt-polarity-pos.txt')
 RT_POLARITY_NEG_FILE = os.path.join(POLARITY_DATA_DIR, 'rt-polarity-neg.txt')
 RT_INPUT_NEG_FILE = os.path.join(POLARITY_DATA_DIR, 'inputsample.txt')
 RT_INPUT_POS_FILE = os.path.join(POLARITY_DATA_DIR, 'posSample.txt')
 
+df = pd.DataFrame()
 #this function takes a feature selection mechanism and returns its performance in a variety of metrics
 def evaluate_features(feature_select):
     posFeatures = []
@@ -55,13 +57,19 @@ def evaluate_features(feature_select):
     referenceSets = collections.defaultdict(set)
     testSets = collections.defaultdict(set)	
 
-    fileOutput = []
+    fileOutput ={'key':[],'pos':[],'neg':[]}
 	#puts correctly labeled sentences in referenceSets and the predictively labeled version in testsets
     for i, (features, label) in enumerate(testFeatures):
         #print features , label
         referenceSets[label].add(i)
-        predicted = classifier.classify(features)
-        fileOutput.append(predicted)
+        predicted = classifier.prob_classify(features)
+        print "\n"
+        fileOutput['key'].append(i)
+        fileOutput['pos'].append(predicted.prob("pos"))
+        fileOutput['neg'].append(predicted.prob("neg"))
+        #posValues =  predicted.prob("pos") 
+        #negValues = predicted.prob("neg") 
+        fileOutput.values()
         testSets[predicted].add(i)
         #print i
         #print testSets[predicted]
@@ -138,14 +146,36 @@ def find_best_words(word_scores, number):
 def best_word_features(words):
 	return dict([(word, True) for word in words if word in best_words])
 
+dp = '{:%Y%m%d%H%M%S}'.format(datetime.datetime.now())
+#outputpath  = 'D:\SourceCode\outputsamplebay1.txt'
+#outputpath  = 'D:\\SourceCode\\Output_NBC_'+ dp + '.txt'
+outputpath  = 'C:\\ABCDEFG\\output\\ABCDEFG_MLNB_'+ dp + '.txt'
+
+output_file = open(outputpath, 'w')
+
 #numbers of features to select
 #numbers_to_test = [10, 100, 1000, 10000, 15000]
-numbers_to_test = [100]
+numbers_to_test = [1000]
 #tries the best_word_features mechanism with each of the numbers_to_test of features
 for num in numbers_to_test:
     print 'evaluating best %d word features' % (num)
     best_words = find_best_words(word_scores, num)
     output = evaluate_features(best_word_features)
-    print output
+    df = pd.DataFrame(output)
+    print df
+    df['diff'] = df['pos'] - df['neg']
+    diff = df['diff'].tolist()
+    for score in diff:
+        if score > 0:
+            op = 'Positive'  + '\n'
+        elif score < 0:
+            op = 'Negative' + '\n'
+        else:
+            op = 'Neutral' + '\n'
+        #print op
+        
+        output_file.write(op)
 
+    #print pd.DataFrame(output.items(), columns=['key','pos', 'neg'])
+    #df.to_csv('out.csv')
 

@@ -4,12 +4,19 @@ import nltk
 from nltk.corpus import wordnet
 import re
 import codecs
+import datetime
 import pprint
 from nltk.wsd import lesk
 #from sentiwordnet import SentiWordNetCorpusReader, SentiSynset
 from nltk.corpus import sentiwordnet as swn
+from nltk.stem.snowball import SnowballStemmer
 
-"""
+import pandas as pd
+
+stemmer = SnowballStemmer("english", ignore_stopwords=True)
+
+
+
 # return true if a string ia a stopword
 def is_stopword(string):
     if string.lower() in nltk.corpus.stopwords.words('english'):
@@ -50,13 +57,13 @@ def wordnet_pos_label(tag):
         return "Adverb"
     else:
         return tag
-"""
+
 
 """ input -> a sentence 
     otput -> sentence in which each words is enriched of -> lemma, wordnet_pos, wordnet_definitions 
 
 """
-"""
+
 def wordnet_definitions(sentence):
     wnl = nltk.WordNetLemmatizer()
     for token in sentence:
@@ -74,31 +81,54 @@ def wordnet_definitions(sentence):
         else:
             pass
     return sentence
-"""
+
 
 #Tokenization
 
+
+def tag_tweet(tweet):    
+    sents = nltk.sent_tokenize(tweet)
+    sentence = []
+    for sent in sents:
+        tokens = nltk.word_tokenize(sent)
+        stems = [stemmer.stem(t) for t in tokens]
+        tag_tuples = nltk.pos_tag(stems)
+        for (string, tag) in tag_tuples:
+            token = {'word':string, 'pos':tag}            
+            sentence.append(token)    
+    return sentence
+    
+
+
+
+"""
 def tag_lines(tweet):    
     sents = nltk.sent_tokenize(tweet)
     sentence = []
     for sent in sents:
         print sent
         tokens = nltk.word_tokenize(sent)
-        tag_tuples = nltk.pos_tag(tokens)
+        stems = [stemmer.stem(t) for t in tokens]
+        print sent
+        tag_tuples = nltk.pos_tag(stems)
         for (string, tag) in tag_tuples:
             token = {'word':string, 'pos':tag}            
             sentence.append(token)    
     return sentence
-
+"""
 
 #review = "I bought this tablecloth in the taupe color for Thanksgiving dinner entertaining and was a little hesitant of what I would get for such a reasonable price. It washed well and didn't even need pressing after coming out of the dryer. The color worked out great with my gold-trimmed Lenox placesettings and the tablecloth was of a nice weight - not too flimsy yet not too heavy either. I'm pleased with this purchase and may order another in a smaller size for use now that the leaf is out of the table!"
 
 
-inputpath  = 'D:\SourceCode\inputsample.txt'
-outputpath  = 'D:\SourceCode\outputsample1.txt'
+inputpath  = 'C:\\ABCDEFG\\input\\inputsample.txt'
+dp = '{:%Y%m%d%H%M%S}'.format(datetime.datetime.now())
+#outputpath  = 'c:\Codebase\outputsample1.txt'
+outputpath  = 'C:\\ABCDEFG\\output\\ABCDEFG_'+ dp + '.txt'
 
 input_file = open(inputpath, 'r')
-output_file = open(outputpath, "w")
+output_file = open(outputpath, 'w')
+
+output = pd.DataFrame()
 
 lines = input_file.readlines()
 
@@ -122,7 +152,7 @@ for line in lines:
     obj_score = 0 # object score 
     pos_score=0 # positive score
     neg_score=0 #negative score
-    for word in tag_lines(line):
+    for word in wordnet_definitions(tag_tweet(line)):
  #   if 'punct' not in word :
         #print word
         #sense = word_sense_disambiguate(word['word'], wordnet_pos_code(word['pos']), review)
@@ -170,13 +200,22 @@ for line in lines:
         avg_pos_score_tre=pos_score_tre/count_tre
         avg_neg_score_tre=neg_score_tre/count_tre
     
+    if pos_score > neg_score:
+        op = 'Positive'  + '\n'
+    elif pos_score < neg_score:
+        op = 'Negative' + '\n'
+    else:
+        op = 'Neutral' + '\n'
+    #print op
+    output_file.write(op)
     #pint results
     #1
-    print "2","pos_total : "+str(pos_score)+" - neg_ total: "+str(neg_score)+" - count : "+str(count)+" -> "+(" positivo " if pos_score > neg_score else ("negativo" if pos_score < neg_score else "neutro"))
+    #print "2","pos_total : "+str(pos_score)+" - neg_ total: "+str(neg_score)+" - count : "+str(count)+" -> "+(" positivo " if pos_score > neg_score else ("negativo" if pos_score < neg_score else "neutro"))
     #2
-    print "3","(AVG) pos : "+str(avg_pos_score)+" - (AVG) neg : "+str(avg_neg_score)+" -> "+(" positivo " if avg_pos_score > avg_neg_score else ("negativo" if avg_pos_score < avg_neg_score else "neutro"))
+    #print "3","(AVG) pos : "+str(avg_pos_score)+" - (AVG) neg : "+str(avg_neg_score)+" -> "+(" positivo " if avg_pos_score > avg_neg_score else ("negativo" if avg_pos_score < avg_neg_score else "neutro"))
     #3
-    if count_tre > 0:
-        print "4", "(AVG_TRE) pos : "+str(avg_pos_score_tre)+" - (AVG_TRE) neg : "+str(avg_neg_score_tre)+" -> "+(" positivo " if avg_pos_score_tre > avg_neg_score_tre else ("negativo" if avg_pos_score_tre < avg_neg_score_tre else "neutro"))
-    print ""
+    #if count_tre > 0:
+     #   print "4", "(AVG_TRE) pos : "+str(avg_pos_score_tre)+" - (AVG_TRE) neg : "+str(avg_neg_score_tre)+" -> "+(" positivo " if avg_pos_score_tre > avg_neg_score_tre else ("negativo" if avg_pos_score_tre < avg_neg_score_tre else "neutro"))
 
+output_file.close()
+input_file.close()

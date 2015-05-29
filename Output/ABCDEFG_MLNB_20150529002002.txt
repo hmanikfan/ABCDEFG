@@ -1,12 +1,10 @@
 Positive
 Negative
 Negative
-Neutral
 Negative
-Neutral
-Neutral
+Negative
 Positive
 Positive
 Positive
 Negative
-Neutral
+Negative
