@@ -168,7 +168,7 @@ for num in numbers_to_test:
     for score in diff:
         if score > -0.1:
             op = 'Positive'  + '\n'
-        elif score < 0.15:
+        elif score < -0.15:
             op = 'Negative' + '\n'
         else:
             op = 'Neutral' + '\n'
